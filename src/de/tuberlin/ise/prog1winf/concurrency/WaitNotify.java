@@ -48,6 +48,7 @@ public class WaitNotify {
 		Thread.sleep(5000);
 		p.interrupt();
 		c.interrupt();
+		
 		p.join();
 		c.join();
 		System.out.println("failed tries: " + wn.getFailedTries());
@@ -79,7 +80,7 @@ class ProducerWaitNotify extends Thread {
 					// System.out.println("Cannot produce :(...");
 					wn.failedTry();
 					try {
-						wn.wait();
+						wn.wait(10);
 					} catch (InterruptedException e) {
 						this.interrupt();
 					}
@@ -90,7 +91,11 @@ class ProducerWaitNotify extends Thread {
 			}
 
 		}
+		synchronized (wn) {
+			wn.notifyAll();
+		}
 		System.out.println("Producer is terminated.");
+		
 	}
 
 }
@@ -119,7 +124,7 @@ class ConsumerWaitNotify extends Thread {
 					// System.out.println("Cannot consume :(...");
 					wn.failedTry();
 					try {
-						wn.wait();
+						wn.wait(10);
 					} catch (InterruptedException e) {
 						this.interrupt();
 					}
@@ -129,6 +134,9 @@ class ConsumerWaitNotify extends Thread {
 				wn.notify();
 			}
 
+		}
+		synchronized (wn) {
+			wn.notifyAll();
 		}
 		System.out.println("Consumer is terminated.");
 	}
